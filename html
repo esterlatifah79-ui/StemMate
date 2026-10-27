@@ -1,0 +1,396 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>STEMMate</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;font-family:Arial,sans-serif;background:#f3f6ff;color:#24345c}
+header{background:linear-gradient(120deg,#397bff,#9859ef);color:white;padding:22px 28px;display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+header h1{margin:0;font-size:28px}
+header p{margin:7px 0 0}
+.status{background:white;color:#2456bb;border-radius:20px;padding:10px 14px;font-weight:bold}
+.layout{display:flex;min-height:calc(100vh - 90px)}
+nav{width:215px;background:white;padding:20px 12px;flex-shrink:0}
+nav button{display:block;width:100%;text-align:left;margin:5px 0;padding:13px;border:0;border-radius:10px;background:white;color:#34466d;cursor:pointer;font-size:15px}
+nav button:hover,nav button.active{background:#e5edff;color:#285bd6}
+main{flex:1;padding:25px;min-width:0}
+.view{display:none}
+.view.active{display:block}
+h2{margin-top:0}
+p{line-height:1.5}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:16px}
+.card{background:white;border-radius:16px;padding:20px;box-shadow:0 4px 16px #24345c0d;margin-bottom:14px}
+.tile{cursor:pointer;border-top:5px solid #6c83ff}
+.tile:nth-child(2){border-color:#34c99a}
+.tile:nth-child(3){border-color:#ffbf47}
+.tile:nth-child(4){border-color:#b477f5}
+.tile h3{margin-top:4px}
+button,.button{background:#397bff;color:white;border:0;border-radius:9px;padding:11px 15px;cursor:pointer;font-size:14px}
+button:hover{filter:brightness(.96)}
+button.secondary{background:#e7edff;color:#2856b9}
+button.green{background:#19a875}
+button.orange{background:#ffbd47;color:#493300}
+button.red{background:#ffeded;color:#b52840}
+input,select,textarea{width:100%;padding:11px;border:1px solid #d8e0f3;border-radius:9px;background:white;color:#24345c;margin:6px 0 14px;font:inherit}
+textarea{min-height:90px;resize:vertical}
+label{font-weight:bold;font-size:13px}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px}
+.activity{display:flex;justify-content:space-between;gap:12px;align-items:center;flex-wrap:wrap}
+.activity h3{margin:4px 0}
+.tag{display:inline-block;background:#eee8ff;color:#7141c5;border-radius:20px;padding:5px 9px;font-size:12px;margin:3px}
+.message{padding:12px;background:#e4fff1;color:#08784f;border-radius:10px;margin:12px 0}
+.warning{padding:12px;background:#fff0dc;color:#8b5000;border-radius:10px;margin:12px 0}
+.danger{padding:12px;background:#ffe8ec;color:#a5233b;border-radius:10px;margin:12px 0}
+.small{font-size:13px;color:#667493}
+.row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+.row>*{flex:1}
+hr{border:0;border-top:1px solid #e6eaf5;margin:18px 0}
+ul,ol{line-height:1.8}
+footer{text-align:center;color:#75809b;padding:20px}
+@media(max-width:650px){
+.layout{display:block}
+nav{width:100%;display:grid;grid-template-columns:repeat(3,1fr);padding:8px}
+nav button{text-align:center;font-size:12px;padding:10px 4px}
+main{padding:15px}
+header{padding:18px}
+}
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🔬 STEMMate</h1>
+    <p>Small steps. Big discoveries.</p>
+  </div>
+  <div class="row" style="flex:0">
+    <span id="status" class="status">Online</span>
+    <button class="secondary" onclick="toggleConnection()">Change connection</button>
+  </div>
+</header>
+
+<div class="layout">
+<nav>
+  <button class="active" data-view="home" onclick="showView('home',this)">🏠 Home</button>
+  <button data-view="browse" onclick="showView('browse',this)">🔎 Browse</button>
+  <button data-view="plans" onclick="showView('plans',this)">📝 My Plans</button>
+  <button data-view="sync" onclick="showView('sync',this)">🔄 Sync Status</button>
+  <button data-view="kits" onclick="showView('kits',this)">📦 Kit Requests</button>
+  <button data-view="participation" onclick="showView('participation',this)">👥 Participation</button>
+  <button data-view="manager" onclick="showView('manager',this)">👁 Plan View</button>
+  <button onclick="signOut()">🚪 Sign Out</button>
+</nav>
+
+<main>
+<section id="home" class="view active">
+  <h2>Welcome to STEMMate! 🌈</h2>
+  <p>Find activities, prepare session plans and keep working when you are offline.</p>
+  <div class="cards">
+    <div class="card tile" onclick="showView('browse')"><h3>🔎 Browse Activities</h3><p>Discover activities by topic, materials and duration.</p></div>
+    <div class="card tile" onclick="showView('plans')"><h3>📝 My Plans</h3><p>Create, edit and manage session plans.</p></div>
+    <div class="card tile" onclick="showView('kits')"><h3>📦 Kit Requests</h3><p>Record equipment and return dates.</p></div>
+    <div class="card tile" onclick="showView('participation')"><h3>👥 Participation</h3><p>Record anonymous participation counts.</p></div>
+  </div>
+  <div class="card">
+    <h3>📌 Your workspace</h3>
+    <p id="homeSummary">Your saved work will appear here.</p>
+    <button onclick="showView('browse')">Explore activities</button>
+    <button class="secondary" onclick="showView('sync')">View sync status</button>
+  </div>
+</section>
+
+<section id="browse" class="view">
+  <h2>Browse Activities 🔎</h2>
+  <p>Choose filters to find a suitable STEM activity.</p>
+  <div class="card grid2">
+    <div><label>Topic</label>
+      <select id="topicFilter" onchange="renderActivities()">
+        <option value="">All topics</option>
+        <option>Science</option><option>Engineering</option><option>Technology</option>
+      </select>
+    </div>
+    <div><label>Materials</label>
+      <select id="materialFilter" onchange="renderActivities()">
+        <option value="">All materials</option>
+        <option value="bottle">Bottle</option>
+        <option value="cardboard">Cardboard</option>
+        <option value="battery">Battery</option>
+      </select>
+    </div>
+    <div><label>Duration</label>
+      <select id="durationFilter" onchange="renderActivities()">
+        <option value="">Any duration</option>
+        <option value="30-45">30–45 minutes</option>
+      </select>
+    </div>
+    <div><label>Search</label><input id="searchFilter" placeholder="Search activities..." oninput="renderActivities()"></div>
+  </div>
+  <div id="activityList" class="cards"></div>
+</section>
+
+<section id="detail" class="view">
+  <button class="secondary" onclick="showView('browse')">← Back to Browse</button>
+  <div id="activityDetail" class="card"></div>
+</section>
+
+<section id="plans" class="view">
+  <div class="row">
+    <div><h2>My Session Plans 📝</h2><p>Drafts stay on this device until you complete them.</p></div>
+    <button onclick="newPlan()">+ New Plan</button>
+  </div>
+  <div id="planList"></div>
+  <div id="editor" class="card">
+    <h3 id="editorHeading">Create a session plan</h3>
+    <input id="planId" type="hidden">
+    <label>Plan title</label><input id="planTitle" placeholder="Enter a title">
+    <label>Activity</label><select id="planActivity"></select>
+    <label>Learning objectives</label><textarea id="planObjectives" placeholder="What should learners discover?"></textarea>
+    <label>Procedure steps</label><textarea id="planSteps" placeholder="Write the activity steps"></textarea>
+    <label>Timing</label><input id="planTiming" placeholder="Example: 10 minutes introduction, 25 minutes activity">
+    <label>Materials</label><textarea id="planMaterials" placeholder="List the materials needed"></textarea>
+    <label>Safety notes</label><textarea id="planSafety" placeholder="List safety instructions"></textarea>
+    <div class="row">
+      <button class="secondary" onclick="saveDraft()">Save Draft</button>
+      <button class="green" onclick="completePlan()">Mark Complete</button>
+    </div>
+    <p id="planMessage" class="small">Changes are saved on this device as you type.</p>
+  </div>
+</section>
+
+<section id="sync" class="view">
+  <h2>Sync Status 🔄</h2>
+  <div class="card">
+    <p id="syncMessage">Your completed plans will appear here.</p>
+    <p class="small">This prototype simulates server responses. It does not upload data to a real server.</p>
+    <div class="row">
+      <button onclick="simulateSync('SUCCESS')">Simulate Success</button>
+      <button class="orange" onclick="simulateSync('FAILURE')">Simulate Failure</button>
+      <button class="red" onclick="simulateSync('CONFLICT')">Simulate Conflict</button>
+    </div>
+  </div>
+  <div id="syncList"></div>
+</section>
+
+<section id="kits" class="view">
+  <h2>Kit Requests 📦</h2>
+  <div class="card">
+    <label>Equipment or kit</label><input id="kitName" placeholder="Example: Circuit kit">
+    <label>Intended date</label><input id="kitDate" type="date">
+    <label>Return status</label>
+    <select id="kitReturn"><option>Not returned</option><option>Returned</option><option>Not required</option></select>
+    <button onclick="saveKit()">Save Kit Request</button>
+  </div>
+  <div id="kitList"></div>
+</section>
+
+<section id="participation" class="view">
+  <h2>Participation Counts 👥</h2>
+  <p>Record totals by age band only. Do not enter pupil names or identifying information.</p>
+  <div class="card">
+    <label>Age band</label>
+    <select id="ageBand"><option>Under 8</option><option>8–10</option><option>11–13</option><option>14 and above</option></select>
+    <label>Number of participants</label><input id="participantCount" type="number" min="0" placeholder="Enter a number">
+    <button onclick="saveParticipation()">Record Count</button>
+  </div>
+  <div id="participationList"></div>
+</section>
+
+<section id="manager" class="view">
+  <h2>Read-only Plan View 👁</h2>
+  <p>School managers can review plans here. Editing controls are not provided in this view.</p>
+  <div id="managerList"></div>
+</section>
+
+<section id="signout" class="view">
+  <h2>Unsynced Work</h2>
+  <div class="card">
+    <div class="warning">You have completed plans waiting to sync. Leaving now may interrupt your work.</div>
+    <button onclick="showView('sync')">Stay and review</button>
+    <button class="red" onclick="confirmDiscard()">Discard local plans and sign out</button>
+    <p class="small">Discarding is permanent for this browser. Drafts are not uploaded.</p>
+  </div>
+</section>
+
+<footer>STEMMate · Learn, create and discover</footer>
+</main>
+</div>
+
+<script>
+const activities=[
+{id:1,title:"Water Filtration",topic:"Science",level:"Easy",duration:40,materials:"bottle, sand, gravel, charcoal",steps:"1. Cut the bottle with adult help.\n2. Add layers of charcoal, sand and gravel.\n3. Pour dirty water through the filter.\n4. Observe and record the result.",safety:"Use clean materials. Avoid sharp objects. Never drink filtered water."},
+{id:2,title:"Build a Solar Oven",topic:"Engineering",level:"Medium",duration:45,materials:"cardboard, foil, tape",steps:"1. Prepare a cardboard box.\n2. Line the inside with foil.\n3. Add a dark paper base.\n4. Place it in sunlight and observe.",safety:"Use scissors carefully. The box may become hot."},
+{id:3,title:"Make a Simple Circuit",topic:"Technology",level:"Medium",duration:35,materials:"battery, wire, LED",steps:"1. Connect the wire to the battery.\n2. Connect the LED in the correct direction.\n3. Complete the circuit.\n4. Observe when the light turns on.",safety:"Use low-voltage batteries only. Never connect wires to a wall outlet."},
+{id:4,title:"Paper Bridge Challenge",topic:"Engineering",level:"Easy",duration:30,materials:"cardboard, paper, tape",steps:"1. Fold paper into different shapes.\n2. Place each shape between two supports.\n3. Add small weights carefully.\n4. Compare which bridge holds more.",safety:"Keep weights small and hands clear when testing."}
+];
+const storageKey="stemm ate_data".replace(" ","");
+let data;
+try{data=JSON.parse(localStorage.getItem(storageKey))||{saved:[],plans:[],kits:[],participation:[]}}catch(e){data={saved:[],plans:[],kits:[],participation:[]}}
+let selectedActivity=activities[0];
+let online=navigator.onLine;
+
+function persist(){localStorage.setItem(storageKey,JSON.stringify(data));renderAll()}
+function showView(id,button){
+document.querySelectorAll(".view").forEach(v=>v.classList.remove("active"));
+const view=document.getElementById(id);
+if(view)view.classList.add("active");
+document.querySelectorAll("nav button[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===id));
+if(id==="plans")renderPlans();
+if(id==="sync")renderSync();
+if(id==="kits")renderKits();
+if(id==="participation")renderParticipation();
+if(id==="manager")renderManager();
+if(id==="browse")renderActivities();
+}
+function updateStatus(){document.getElementById("status").textContent=online?"Online":"Offline";document.getElementById("homeSummary").textContent=(online?"You are online. ":"You are offline. ") + data.saved.length+" saved activities and "+data.plans.length+" plans are stored on this device."}
+function toggleConnection(){online=!online;updateStatus();if(online)document.getElementById("syncMessage").textContent="Connection restored. Choose a sync result below to test recovery."}
+function renderActivities(){
+const topic=document.getElementById("topicFilter").value;
+const material=document.getElementById("materialFilter").value;
+const duration=document.getElementById("durationFilter").value;
+const search=document.getElementById("searchFilter").value.toLowerCase();
+const matches=activities.filter(a=>(!topic||a.topic===topic)&&(!material||a.materials.toLowerCase().includes(material))&&(!duration||(a.duration>=30&&a.duration<=45))&&(a.title.toLowerCase().includes(search)||a.topic.toLowerCase().includes(search)||a.materials.includes(search)));
+document.getElementById("activityList").innerHTML=matches.length?matches.map(a=>`<div class="card"><span class="tag">${a.topic}</span><span class="tag">${a.level}</span><h3>${a.title}</h3><p>⏱ ${a.duration} minutes</p><p>Materials: ${a.materials}</p><button onclick="openActivity(${a.id})">View activity</button></div>`).join(""):'<div class="card">No matching activities. Try changing your filters.</div>';
+}
+function openActivity(id){
+selectedActivity=activities.find(a=>a.id===id);
+document.getElementById("activityDetail").innerHTML=`<h2>${selectedActivity.title}</h2><span class="tag">${selectedActivity.level}</span><span class="tag">${selectedActivity.duration} minutes</span><h3>Materials</h3><p>${selectedActivity.materials}</p><h3>Procedure</h3><p style="white-space:pre-line">${selectedActivity.steps}</p><div class="danger"><b>Safety warnings</b><p>${selectedActivity.safety}</p></div><button onclick="saveOffline(${id})">Save Offline</button> <button class="secondary" onclick="newPlan(${id})">New Plan from this Activity</button><p id="savedMessage"></p>`;
+showView("detail");
+}
+function saveOffline(id){
+if(!data.saved.includes(id))data.saved.push(id);
+persist();
+document.getElementById("savedMessage").textContent="Saved for offline use on this device.";
+}
+function newPlan(activityId){
+const a=activities.find(x=>x.id===activityId)||selectedActivity||activities[0];
+document.getElementById("planId").value="";
+document.getElementById("editorHeading").textContent="Create a session plan";
+document.getElementById("planTitle").value=a.title+" Session";
+document.getElementById("planActivity").value=String(a.id);
+document.getElementById("planObjectives").value="Explore "+a.title+" and observe the results.";
+document.getElementById("planSteps").value=a.steps;
+document.getElementById("planTiming").value=a.duration+" minutes";
+document.getElementById("planMaterials").value=a.materials;
+document.getElementById("planSafety").value=a.safety;
+document.getElementById("planMessage").textContent="Your changes are stored on this device.";
+showView("plans");
+}
+function readPlan(){
+return{id:document.getElementById("planId").value||String(Date.now()),title:document.getElementById("planTitle").value.trim(),activityId:Number(document.getElementById("planActivity").value),objectives:document.getElementById("planObjectives").value,steps:document.getElementById("planSteps").value,timing:document.getElementById("planTiming").value,materials:document.getElementById("planMaterials").value,safety:document.getElementById("planSafety").value,status:"Draft",syncMessage:"",updated:new Date().toLocaleDateString()}
+}
+function saveDraft(){
+const p=readPlan();
+if(!p.title){document.getElementById("planMessage").textContent="Please add a title before saving.";return}
+const index=data.plans.findIndex(x=>x.id===p.id);
+if(index>=0){p.status=data.plans[index].status;p.syncMessage=data.plans[index].syncMessage;data.plans[index]=p}else data.plans.push(p);
+document.getElementById("planId").value=p.id;
+document.getElementById("planMessage").textContent="Draft saved on this device.";
+persist();
+}
+function completePlan(){
+saveDraft();
+const id=document.getElementById("planId").value;
+const p=data.plans.find(x=>x.id===id);
+if(!p)return;
+p.status="Queued";p.syncMessage="Waiting for connection";
+document.getElementById("planMessage").textContent="Waiting for connection. Plan added to the sync queue.";
+persist();
+}
+function editPlan(id){
+const p=data.plans.find(x=>x.id===id);
+if(!p)return;
+document.getElementById("planId").value=p.id;
+document.getElementById("editorHeading").textContent="Edit session plan";
+document.getElementById("planTitle").value=p.title;
+document.getElementById("planActivity").value=String(p.activityId);
+document.getElementById("planObjectives").value=p.objectives;
+document.getElementById("planSteps").value=p.steps;
+document.getElementById("planTiming").value=p.timing;
+document.getElementById("planMaterials").value=p.materials;
+document.getElementById("planSafety").value=p.safety;
+document.getElementById("planMessage").textContent="Changes are stored on this device.";
+document.getElementById("editor").scrollIntoView({behavior:"smooth"});
+}
+function renderPlans(){
+document.getElementById("planList").innerHTML=data.plans.length?data.plans.map(p=>`<div class="card activity"><div><h3>${p.title}</h3><p class="small">${p.updated||""}</p><span class="tag">${p.status}</span><p>${p.syncMessage||""}</p></div><button class="secondary" onclick="editPlan('${p.id}')">Edit</button></div>`).join(""):'<div class="card">No plans yet. Choose an activity and select New Plan from this Activity.</div>';
+}
+function simulateSync(result){
+const queued=data.plans.filter(p=>p.status==="Queued"||p.status==="Conflict");
+if(!queued.length){document.getElementById("syncMessage").textContent="There are no completed plans waiting to sync.";renderSync();return}
+if(result==="SUCCESS"){
+queued.forEach(p=>{p.status="Synced";p.syncMessage="Synced successfully. Local copy retained."});
+document.getElementById("syncMessage").textContent="Sync successful. Plans have been removed from the queue; local copies remain.";
+}
+if(result==="FAILURE"){
+queued.forEach(p=>{p.status="Queued";p.syncMessage="Sync failed – tap to try again"});
+document.getElementById("syncMessage").textContent="Sync failed – tap to try again. Your plans remain queued.";
+}
+if(result==="CONFLICT"){
+queued.forEach(p=>{p.status="Conflict";p.syncMessage="Conflict – please review"});
+document.getElementById("syncMessage").textContent="Conflict – please review. Your local plans have been preserved.";
+}
+persist();
+}
+function resolveConflict(id,choice){
+const p=data.plans.find(x=>x.id===id);
+if(!p)return;
+p.status="Queued";
+p.syncMessage=choice==="local"?"Local version kept. Ready to retry.":"Local version preserved and marked for merge review.";
+persist();
+}
+function renderSync(){
+const queued=data.plans.filter(p=>p.status==="Queued"||p.status==="Conflict");
+document.getElementById("syncList").innerHTML=queued.length?queued.map(p=>`<div class="card"><h3>${p.title}</h3><p>${p.syncMessage||"Waiting for connection"}</p>${p.status==="Conflict"?`<button onclick="resolveConflict('${p.id}','local')">Keep Local</button> <button class="secondary" onclick="resolveConflict('${p.id}','merge')">Choose Merge</button>`:""}</div>`).join(""):'<div class="card">The sync queue is empty.</div>';
+}
+function saveKit(){
+const name=document.getElementById("kitName").value.trim();
+if(!name){alert("Please enter an equipment name.");return}
+data.kits.push({name,date:document.getElementById("kitDate").value,returned:document.getElementById("kitReturn").value});
+document.getElementById("kitName").value="";
+persist();
+}
+function renderKits(){
+document.getElementById("kitList").innerHTML=data.kits.length?data.kits.map(k=>`<div class="card"><h3>${k.name}</h3><p>Intended date: ${k.date||"Not set"}</p><span class="tag">${k.returned}</span></div>`).join(""):'<div class="card">No kit requests recorded.</div>';
+}
+function saveParticipation(){
+const count=Number(document.getElementById("participantCount").value);
+if(document.getElementById("participantCount").value===""||count<0){alert("Enter a valid participant count.");return}
+data.participation.push({age:document.getElementById("ageBand").value,count});
+document.getElementById("participantCount").value="";
+persist();
+}
+function renderParticipation(){
+const totals={};
+data.participation.forEach(p=>totals[p.age]=(totals[p.age]||0)+p.count);
+document.getElementById("participationList").innerHTML=Object.keys(totals).length?Object.entries(totals).map(([age,count])=>`<div class="card activity"><strong>${age}</strong><span>${count} participants</span></div>`).join(""):'<div class="card">No participation counts recorded.</div>';
+}
+function renderManager(){
+document.getElementById("managerList").innerHTML=data.plans.length?data.plans.map(p=>`<div class="card"><h3>${p.title}</h3><p><b>Status:</b> ${p.status}</p><p><b>Objectives:</b> ${p.objectives}</p><p><b>Steps:</b></p><p style="white-space:pre-line">${p.steps}</p><p><b>Timing:</b> ${p.timing}</p><p><b>Materials:</b> ${p.materials}</p><p><b>Safety:</b> ${p.safety}</p><span class="tag">Read-only</span></div>`).join(""):'<div class="card">No session plans are available to view.</div>';
+}
+function signOut(){
+const pending=data.plans.some(p=>p.status==="Queued"||p.status==="Conflict");
+if(pending){showView("signout");return}
+if(confirm("Are you sure you want to sign out?"))alert("You have signed out of this prototype.");
+}
+function confirmDiscard(){
+if(confirm("Discard all local plans? This cannot be undone.")){data.plans=data.plans.filter(p=>p.status==="Synced");persist();alert("Local unsynced plans were discarded.");showView("home")}
+}
+function renderAll(){
+updateStatus();renderActivities();renderPlans();renderSync();renderKits();renderParticipation();renderManager();
+}
+document.getElementById("planActivity").innerHTML=activities.map(a=>`<option value="${a.id}">${a.title}</option>`).join("");
+["planTitle","planObjectives","planSteps","planTiming","planMaterials","planSafety"].forEach(id=>document.getElementById(id).addEventListener("input",()=>{
+const currentId=document.getElementById("planId").value;
+if(currentId){
+const p=data.plans.find(x=>x.id===currentId);
+if(p){p.title=document.getElementById("planTitle").value;p.objectives=document.getElementById("planObjectives").value;p.steps=document.getElementById("planSteps").value;p.timing=document.getElementById("planTiming").value;p.materials=document.getElementById("planMaterials").value;p.safety=document.getElementById("planSafety").value;localStorage.setItem(storageKey,JSON.stringify(data))}
+}
+}));
+window.addEventListener("online",()=>{online=true;updateStatus()});
+window.addEventListener("offline",()=>{online=false;updateStatus()});
+renderAll();
+</script>
+</body>
+</html>
